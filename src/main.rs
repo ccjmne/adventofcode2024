@@ -1,7 +1,16 @@
-use std::{fs, path::Path};
+use std::{fmt::Debug, fs, path::Path};
+
+use y2024::d1::Day1;
 
 mod y2024 {
     pub mod d1;
+}
+
+pub trait Day {
+    type Input;
+    fn parse(input: String) -> Self::Input;
+    fn part_i(data: &Self::Input) -> impl Debug;
+    fn part_ii(data: &Self::Input) -> impl Debug;
 }
 
 fn main() {
@@ -17,16 +26,19 @@ fn main() {
         false,
     );
 
-    println!(
-        "{:?}",
-        match args[1].as_str() {
-            "1" => (y2024::d1::part1(&input), y2024::d1::part2(&input)),
-            _ => {
-                eprintln!("Invalid day: {}", args[1]);
-                std::process::exit(1);
-            }
+    match args[1].as_str() {
+        "1" => run_day::<Day1>(input),
+        _ => {
+            eprintln!("Invalid day: {}", args[1]);
+            std::process::exit(1);
         }
-    )
+    }
+
+    fn run_day<T: Day>(input: String) {
+        let data = T::parse(input);
+        println!("Part 1: {:?}", T::part_i(&data));
+        println!("Part 2: {:?}", T::part_ii(&data));
+    }
 }
 
 pub fn read_input(year: u16, day: u8, personalised: bool) -> String {
