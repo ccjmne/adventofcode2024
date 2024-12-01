@@ -1,30 +1,70 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
+    backend::CrosstermBackend,
     buffer::Buffer,
+    crossterm::{
+        execute,
+        terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    },
     layout::Rect,
     style::Stylize,
     symbols::border,
     text::Line,
     widgets::{Block, Paragraph, Widget},
-    DefaultTerminal, Frame,
+    DefaultTerminal, Frame, Terminal,
 };
 use registry::get;
-use std::{fs, io, path::Path};
+use signal_hook::{
+    consts::{SIGHUP, SIGINT, SIGTERM},
+    flag,
+};
+use std::{
+    fs,
+    io::{self, stdout, Stdout},
+    panic::{set_hook, take_hook},
+    path::Path,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+};
 
 mod registry;
 mod y2024 {
     pub mod d1;
 }
 
+fn setup_signal_handlers(exit_flag: Arc<AtomicBool>) -> io::Result<()> {
+    let signals = [SIGINT, SIGTERM, SIGHUP];
+    for &sig in &signals {
+        flag::register(sig, Arc::clone(&exit_flag))?;
+    }
+    let exit_flag_clone = Arc::clone(&exit_flag);
+    std::thread::spawn(move || {
+        while !exit_flag_clone.load(Ordering::SeqCst) {
+            std::thread::sleep(std::time::Duration::from_millis(100));
+        }
+        if let Err(e) = restore_tui() {
+            eprintln!("Error restoring TUI: {:?}", e);
+        }
+        std::process::exit(0);
+    });
+    Ok(())
+}
+
 fn main() -> io::Result<()> {
-    let mut terminal = ratatui::init();
+    init_panic_hook();
+    let exit_flag = Arc::new(AtomicBool::new(false));
+    setup_signal_handlers(exit_flag)?;
+    let mut tui = init_tui()?;
+    tui.draw(|frame| frame.render_widget(Line::from("Hello, world!"), frame.area()))?;
     let app_result = (App {
         day: 1,
         year: 2024,
         exit: false,
     })
-    .run(&mut terminal);
-    ratatui::restore();
+    .run(&mut tui);
+    restore_tui()?;
     app_result
 }
 
@@ -97,19 +137,36 @@ impl App {
         self.exit = true;
     }
 }
+pub fn init_panic_hook() {
+    let original_hook = take_hook();
+    set_hook(Box::new(move |panic_info| {
+        let _ = restore_tui();
+        original_hook(panic_info);
+    }));
+}
+
+pub fn init_tui() -> io::Result<Terminal<CrosstermBackend<Stdout>>> {
+    enable_raw_mode()?;
+    execute!(stdout(), EnterAlternateScreen)?;
+    Terminal::new(CrosstermBackend::new(stdout()))
+}
+
+pub fn restore_tui() -> io::Result<()> {
+    disable_raw_mode()?;
+    execute!(stdout(), LeaveAlternateScreen)?;
+    Ok(())
+}
 
 pub fn read_input(year: u16, day: u8, real: bool) -> String {
-    let file_path = Path::new(file!()).parent().unwrap().join(format!(
+    fs::read_to_string(Path::new(file!()).parent().unwrap().join(format!(
         "y{year}/d{day}_{}.txt",
         if real { "real" } else { "test" }
-    ));
-    fs::read_to_string(file_path)
-        .expect(&format!("Failed to read input for year {year}, day {day}"))
+    )))
+    .unwrap_or(String::from(""))
 }
 
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        // let title = Line::from(" Counter App Tutorial ".bold());
         let instructions = Line::from(vec![
             " [".into(),
             "j".light_blue().bold(),
