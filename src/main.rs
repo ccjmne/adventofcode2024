@@ -99,12 +99,11 @@ impl App {
 }
 
 pub fn read_input(year: u16, day: u8, real: bool) -> String {
-    let file_path = Path::new(file!()).parent().unwrap().join(format!(
+    fs::read_to_string(Path::new(file!()).parent().unwrap().join(format!(
         "y{year}/d{day}_{}.txt",
         if real { "real" } else { "test" }
-    ));
-    fs::read_to_string(file_path)
-        .expect(&format!("Failed to read input for year {year}, day {day}"))
+    )))
+    .unwrap_or(String::from(""))
 }
 
 impl Widget for &App {
