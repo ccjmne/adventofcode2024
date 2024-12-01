@@ -1,74 +1,153 @@
-use ratatui::crossterm::{
-    event::{self, Event, KeyCode},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
+use std::io;
+
+use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
-    backend::{Backend, CrosstermBackend},
-    layout::{Constraint, Layout},
-    widgets::Block,
-    Terminal,
+    buffer::Buffer,
+    layout::Rect,
+    style::Stylize,
+    symbols::border,
+    text::Line,
+    widgets::{Block, Paragraph, Widget},
+    DefaultTerminal, Frame,
 };
-use std::io::{self};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    enable_raw_mode()?;
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
-
-    let result = run_app(&mut terminal);
-
-    disable_raw_mode()?;
-    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-    terminal.show_cursor()?;
-
-    if let Err(err) = result {
-        eprintln!("{:?}", err);
-    }
-
-    Ok(())
+fn main() -> io::Result<()> {
+    let mut terminal = ratatui::init();
+    let app_result = (App {
+        day: 1,
+        year: 2024,
+        exit: false,
+    })
+    .run(&mut terminal);
+    ratatui::restore();
+    app_result
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
-    let mut one = true;
-    let mut two = true;
-    loop {
-        terminal.draw(|frame| {
-            use Constraint::{Fill, Length, Min};
+#[derive(Debug, Default)]
+pub struct App {
+    day: u8,
+    year: u16,
+    exit: bool,
+}
 
-            let vertical = Layout::vertical([Length(1), Min(0), Length(1)]);
-            let [title_area, main_area, status_area] = vertical.areas(frame.area());
+impl App {
+    fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+        while !self.exit {
+            terminal.draw(|frame| self.draw(frame))?;
+            self.handle_events()?;
+        }
+        Ok(())
+    }
 
-            if one {
-                let horizontal = Layout::horizontal([Fill(1); 2]);
-                let areas = horizontal.split(main_area);
-                frame.render_widget(Block::bordered().title(" Part I "), areas[0]);
-                frame.render_widget(Block::bordered().title(" Part II "), areas[1]);
-            } else {
-                let horizontal = Layout::horizontal([Fill(1)]);
-                let [right_area] = horizontal.areas(main_area);
-                frame.render_widget(Block::bordered().title(" Part II "), right_area);
+    fn draw(&self, frame: &mut Frame) {
+        frame.render_widget(self, frame.area());
+    }
+
+    fn handle_events(&mut self) -> io::Result<()> {
+        match event::read()? {
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                self.handle_key_event(key_event)
             }
+            _ => {}
+        };
+        Ok(())
+    }
 
-            frame.render_widget(Block::default().title("Advent of Code 2024"), title_area);
-            frame.render_widget(Block::default().title("Status Bar"), status_area);
-        })?;
-
-        if let Event::Key(key) = event::read()? {
-            if key.code == KeyCode::Char('1') {
-                one = !one;
-            }
-
-            if key.code == KeyCode::Char('2') {
-                two = !two;
-            }
-
-            if key.code == KeyCode::Char('q') {
-                break;
-            }
+    fn handle_key_event(&mut self, key_event: KeyEvent) {
+        match key_event.code {
+            KeyCode::Char('q') => self.exit(),
+            KeyCode::Char('k') => self.decrement_day(),
+            KeyCode::Char('j') => self.increment_day(),
+            KeyCode::Char('h') => self.decrement_year(),
+            KeyCode::Char('l') => self.increment_year(),
+            _ => {}
         }
     }
-    Ok(())
+
+    fn increment_year(&mut self) {
+        self.year += 1
+    }
+    fn decrement_year(&mut self) {
+        self.year -= 1
+    }
+
+    fn increment_day(&mut self) {
+        self.day = if self.day == 25 {
+            self.increment_year();
+            1
+        } else {
+            self.day + 1
+        }
+    }
+    fn decrement_day(&mut self) {
+        self.day = if self.day == 1 {
+            self.decrement_year();
+            25
+        } else {
+            self.day - 1
+        }
+    }
+
+    fn exit(&mut self) {
+        self.exit = true;
+    }
+}
+
+impl Widget for &App {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        // let title = Line::from(" Counter App Tutorial ".bold());
+        let instructions = Line::from(vec![
+            " [".into(),
+            "j".light_blue().bold(),
+            "|".into(),
+            "k".light_blue().bold(),
+            "]: navigate days,".into(),
+            " [".into(),
+            "h".light_blue().bold(),
+            "|".into(),
+            "l".light_blue().bold(),
+            "]: navigate years,".into(),
+            " [".into(),
+            "q".light_blue().bold(),
+            "]: quit ".into(),
+        ]);
+        let title = Line::from(vec![
+            " AoC ".into(),
+            self.year.to_string().bold(),
+            " day ".into(),
+            self.day.to_string().bold(),
+            " ".into(),
+        ]);
+        let block = Block::bordered()
+            .title(title.centered())
+            .title_bottom(instructions.right_aligned())
+            .border_set(border::PLAIN);
+        Paragraph::new("").centered().block(block).render(area, buf);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ratatui::style::Style;
+
+    #[test]
+    fn render() {
+        let app = App::default();
+        let area = Rect::new(0, 0, 80, 4);
+        let mut buf = Buffer::empty(area);
+
+        app.render(buf.area, &mut buf);
+
+        let mut expected = Buffer::with_lines(vec![
+            "┌──────────────────────────────── AoC 0 day 0 ─────────────────────────────────┐",
+            "│                                                                              │",
+            "│                                                                              │",
+            "└────────────────────── [j|k]: navigate days, [h|l]: navigate years, [q]: quit ┘",
+        ]);
+        buf.set_style(area, Style::reset());
+        expected.set_style(area, Style::reset());
+
+        assert_eq!(buf, expected);
+    }
 }
