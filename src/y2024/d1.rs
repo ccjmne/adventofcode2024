@@ -1,4 +1,8 @@
-use crate::Day;
+use crate::{
+    register,
+    registry::{register, AnySolution, Output, Solution},
+};
+use ctor::ctor;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
@@ -7,9 +11,9 @@ lazy_static! {
     static ref PARSER: Regex = Regex::new(r"^(?P<a>\d+)\s*(?P<b>\d+)$").unwrap();
 }
 
-pub struct Day1;
-
-impl Day for Day1 {
+register!(1, Y2024D1);
+struct Y2024D1;
+impl Solution for Y2024D1 {
     type Input = (Vec<u32>, Vec<u32>);
     fn parse(input: String) -> Self::Input {
         input
@@ -24,18 +28,20 @@ impl Day for Day1 {
             .unzip()
     }
 
-    fn part_i(data: &Self::Input) -> u32 {
+    fn part_i(data: &Self::Input) -> Box<Output> {
         let (mut l, mut r) = data.clone();
         l.sort();
         r.sort();
 
-        l.into_iter()
-            .zip(r)
-            .map(|(a, b)| (a).abs_diff(b))
-            .sum::<u32>()
+        Box::new(
+            l.into_iter()
+                .zip(r)
+                .map(|(a, b)| (a).abs_diff(b))
+                .sum::<u32>(),
+        )
     }
 
-    fn part_ii(data: &Self::Input) -> u32 {
+    fn part_ii(data: &Self::Input) -> Box<Output> {
         let (l, r) = data;
         fn bin(v: &Vec<u32>) -> HashMap<u32, u32> {
             v.into_iter().fold(HashMap::new(), |mut acc, x| {
@@ -45,8 +51,10 @@ impl Day for Day1 {
         }
 
         let r = bin(r);
-        bin(l)
-            .into_iter()
-            .fold(0, |sum, (k, v)| sum + k * v * r.get(&k).unwrap_or(&0))
+        Box::new(
+            bin(l)
+                .into_iter()
+                .fold(0, |sum, (k, v)| sum + k * v * r.get(&k).unwrap_or(&0)),
+        )
     }
 }
