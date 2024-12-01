@@ -1,17 +1,25 @@
+use lazy_static::lazy_static;
 use regex::Regex;
 
-pub fn part1(input: &String) -> u32 {
-    let parser = Regex::new(r"^(?P<a>\d+)\s*(?P<b>\d+)$").expect("Invalid regex");
-    let (mut l, mut r): (Vec<u32>, Vec<u32>) = input
+lazy_static! {
+    static ref PARSER: Regex = Regex::new(r"^(?P<a>\d+)\s*(?P<b>\d+)$").unwrap();
+}
+
+fn parse(input: &String) -> Vec<(u32, u32)> {
+    input
         .lines()
         .filter_map(|line| {
-            parser.captures(line).and_then(|caps| {
+            PARSER.captures(line).and_then(|caps| {
                 let a = caps.name("a")?.as_str().parse::<u32>().ok()?;
                 let b = caps.name("b")?.as_str().parse::<u32>().ok()?;
                 Some((a, b))
             })
         })
-        .unzip();
+        .collect()
+}
+
+pub fn part1(input: &String) -> u32 {
+    let (mut l, mut r): (Vec<_>, Vec<_>) = parse(input).into_iter().unzip();
     l.sort();
     r.sort();
 
