@@ -18,9 +18,9 @@ fn main() {
     );
 
     println!(
-        "{}",
+        "{:?}",
         match args[1].as_str() {
-            "1" => y2024::d1::part1(input),
+            "1" => (y2024::d1::part1(&input), y2024::d1::part2(&input)),
             _ => {
                 eprintln!("Invalid day: {}", args[1]);
                 std::process::exit(1);

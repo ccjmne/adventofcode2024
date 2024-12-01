@@ -1,6 +1,6 @@
 use regex::Regex;
 
-pub fn part1(input: String) -> u32 {
+pub fn part1(input: &String) -> u32 {
     let parser = Regex::new(r"^(?P<a>\d+)\s*(?P<b>\d+)$").expect("Invalid regex");
     let (mut l, mut r): (Vec<u32>, Vec<u32>) = input
         .lines()
@@ -21,6 +21,6 @@ pub fn part1(input: String) -> u32 {
         .sum::<u32>()
 }
 
-pub fn part2(input: String) {
-    println!("Running Part 2!");
+pub fn part2(input: &String) -> u32 {
+    return 0;
 }
