@@ -1,5 +1,3 @@
-use std::io;
-
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     buffer::Buffer,
@@ -10,6 +8,13 @@ use ratatui::{
     widgets::{Block, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
+use registry::get;
+use std::{fs, io, path::Path};
+
+mod registry;
+mod y2024 {
+    pub mod d1;
+}
 
 fn main() -> io::Result<()> {
     let mut terminal = ratatui::init();
@@ -93,6 +98,15 @@ impl App {
     }
 }
 
+pub fn read_input(year: u16, day: u8, real: bool) -> String {
+    let file_path = Path::new(file!()).parent().unwrap().join(format!(
+        "y{year}/d{day}_{}.txt",
+        if real { "real" } else { "test" }
+    ));
+    fs::read_to_string(file_path)
+        .expect(&format!("Failed to read input for year {year}, day {day}"))
+}
+
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // let title = Line::from(" Counter App Tutorial ".bold());
@@ -118,11 +132,23 @@ impl Widget for &App {
             self.day.to_string().bold(),
             " ".into(),
         ]);
+        let input = read_input(2024, self.day, false);
+        let (i, ii) = match get(self.day) {
+            Some(v) => (v.solve)(input),
+            None => (
+                Box::new("TODO".to_string()) as Box<dyn std::fmt::Display + Send + Sync>,
+                Box::new("TODO".to_string()) as Box<dyn std::fmt::Display + Send + Sync>,
+            ),
+        };
+
         let block = Block::bordered()
             .title(title.centered())
             .title_bottom(instructions.right_aligned())
             .border_set(border::PLAIN);
-        Paragraph::new("").centered().block(block).render(area, buf);
+        Paragraph::new(format!("Part I: {}\nPart II: {}", i, ii))
+            .centered()
+            .block(block)
+            .render(area, buf);
     }
 }
 
