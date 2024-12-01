@@ -3,13 +3,11 @@ use crate::{
     registry::{register, AnySolution, Output, Solution},
 };
 use ctor::ctor;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::collections::HashMap;
 
-lazy_static! {
-    static ref PARSER: Regex = Regex::new(r"^(?P<a>\d+)\s*(?P<b>\d+)$").unwrap();
-}
+static PARSER: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(?P<a>\d+)\s*(?P<b>\d+)$").unwrap());
 
 register!(1, Y2024D1);
 struct Y2024D1;
