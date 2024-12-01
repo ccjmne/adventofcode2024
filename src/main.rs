@@ -16,13 +16,17 @@ fn main() {
         args[1].parse().expect("Failed to parse number"),
         false,
     );
-    match args[1].as_str() {
-        "1" => y2024::d1::part1(input),
-        _ => {
-            eprintln!("Invalid day: {}", args[1]);
-            std::process::exit(1);
+
+    println!(
+        "{}",
+        match args[1].as_str() {
+            "1" => y2024::d1::part1(input),
+            _ => {
+                eprintln!("Invalid day: {}", args[1]);
+                std::process::exit(1);
+            }
         }
-    }
+    )
 }
 
 pub fn read_input(year: u16, day: u8, personalised: bool) -> String {
