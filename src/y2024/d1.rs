@@ -28,8 +28,8 @@ impl Solution for Y2024D1 {
 
     fn part_i(data: &Self::Input) -> Box<Output> {
         let (mut l, mut r) = data.clone();
-        l.sort();
-        r.sort();
+        l.sort_unstable();
+        r.sort_unstable();
 
         Box::new(
             l.into_iter()
