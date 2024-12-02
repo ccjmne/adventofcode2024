@@ -1,9 +1,9 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt::Debug;
 use std::sync::{Arc, RwLock};
 
-pub type Output = dyn Display + Send + Sync;
+pub type Output = dyn Debug + Send + Sync;
 
 pub trait Solution {
     type Input;

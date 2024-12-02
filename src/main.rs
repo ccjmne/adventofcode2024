@@ -15,7 +15,7 @@ fn main() {
     let day: u8 = args[1].parse().expect("Failed to parse number");
     let input = read_input(2024, day, false);
     let (i, ii) = (get(day).unwrap().solve)(input);
-    print!("Part I: {}\nPart II: {}", i, ii);
+    print!("Part I: {:?}\nPart II: {:?}", i, ii);
 }
 
 pub fn read_input(year: u16, day: u8, real: bool) -> String {
