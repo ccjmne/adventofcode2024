@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::collections::HashMap;
 
-static PARSER: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(?P<a>\d+)\s*(?P<b>\d+)$").unwrap());
+static PARSER: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(?P<l>\d+)\s*(?P<r>\d+)$").unwrap());
 
 register!(1, Y2024D1);
 struct Y2024D1;
@@ -18,9 +18,9 @@ impl Solution for Y2024D1 {
             .lines()
             .filter_map(|line| {
                 PARSER.captures(line).and_then(|caps| {
-                    let a = caps.name("a")?.as_str().parse::<u32>().ok()?;
-                    let b = caps.name("b")?.as_str().parse::<u32>().ok()?;
-                    Some((a, b))
+                    let l = caps.name("l")?.as_str().parse::<u32>().ok()?;
+                    let r = caps.name("r")?.as_str().parse::<u32>().ok()?;
+                    Some((l, r))
                 })
             })
             .unzip()
