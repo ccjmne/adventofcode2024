@@ -3,7 +3,7 @@ use crate::{
     registry::{register, AnySolution, Output, Solution},
 };
 use ctor::ctor;
-use std::iter::zip;
+use std::iter::{once, zip};
 
 struct Y2024D2;
 register!(2, Y2024D2);
@@ -47,6 +47,36 @@ impl Solution for Y2024D2 {
     }
 
     fn part_ii(input: &Self::Input) -> Box<Output> {
-        Box::new(())
+        Box::new(
+            input
+                .clone()
+                .into_iter()
+                .map(|report| {
+                    let default = report.clone();
+                    (0..report.len())
+                        .map(|i| {
+                            let clone = report.clone();
+                            [&clone[..i], &clone[i + 1..]].concat()
+                        })
+                        .chain(once(default))
+                        .map(|report| {
+                            zip(report.clone(), report[1..].to_vec())
+                                .map(|(l, r)| ((r - l).abs(), (r - l).signum()))
+                                .fold(Ok(i32::MAX), |trend, (delta, dir)| {
+                                    trend.and_then(|t| {
+                                        if (t == i32::MAX || t == dir) && (0 < delta && delta <= 3)
+                                        {
+                                            Ok(dir)
+                                        } else {
+                                            Err(())
+                                        }
+                                    })
+                                })
+                        })
+                        .any(|r| r.is_ok())
+                })
+                .filter(|&ok| ok)
+                .count(),
+        )
     }
 }
