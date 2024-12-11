@@ -4,6 +4,7 @@ use std::{fs, path::Path};
 mod registry;
 mod y2024 {
     pub mod d1;
+    pub mod d2;
 }
 
 fn main() {
