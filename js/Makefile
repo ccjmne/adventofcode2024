@@ -12,6 +12,7 @@ default:
 	$(MAKE) default DAY=$*
 
 all:
+	# TODO: Also watch .txt files but still run node on its mjs
 	while sleep 1 ; do clear; fd [.]m?js | entr -dcp -- node /_ ; echo 'Press ^C again to quit before respawn' ; done
 
 get:
