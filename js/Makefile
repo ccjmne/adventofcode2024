@@ -6,7 +6,9 @@ DAY ?= $(shell date +%d)
 default:
 	[ -f '$(DAY).txt' ] || $(MAKE) get DAY=$(DAY)
 	[ -f '$(DAY).mjs' ] || $(MAKE) set DAY=$(DAY)
-	fd '$(DAY)[.](mjs|txt)' | entr -c -- node $(DAY).mjs
+	# Don't use fd here, so that we can start entr
+	# with the right watch before the input is downloaded.
+	echo -e '$(DAY).mjs\n$(DAY).txt' | entr -c -- node $(DAY).mjs
 
 %:
 	$(MAKE) default DAY=$*
