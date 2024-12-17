@@ -24,7 +24,7 @@ set:
 	cat > '$(DAY).mjs' <<-EOF
 		import { readFile } from 'fs/promises'
 		const __dirname = import.meta.url.substring('file://'.length, import.meta.url.lastIndexOf('/'))
-		const data = String(await readFile(__dirname + '/$(DAY).txt'))
+		const data = String(await readFile(__dirname + '/$(DAY).txt')).trim()
 		console.log(data)
 	EOF
 
