@@ -1,4 +1,4 @@
-.PHONY: run watch clear
+.PHONY: run watch edit clear
 .ONESHELL:
 
 day  ?= $(shell date +%d)
@@ -9,6 +9,9 @@ run: $(DEPS)
 
 watch: $(DEPS)
 	entr -dc node /_ <<< $(day).mjs
+
+edit: $(DEPS)
+	$$EDITOR $(day).mjs
 
 clear:
 	rm -f $(DEPS)
