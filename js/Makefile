@@ -1,30 +1,25 @@
+.PHONY: run watch clear
 .ONESHELL:
-.PHONY: default % all get set open
 
-DAY ?= $(shell date +%d)
+day  ?= $(shell date +%d)
+DEPS := $(day).txt $(day).mjs
 
-default:
-	[ -f '$(DAY).txt' ] || $(MAKE) get DAY=$(DAY)
-	[ -f '$(DAY).mjs' ] || $(MAKE) set DAY=$(DAY)
-	# Don't use fd here, so that we can start entr
-	# with the right watch before the input is downloaded.
-	echo -e '$(DAY).mjs\n$(DAY).txt' | entr -c -- node $(DAY).mjs
+run: $(DEPS)
+	node $(day).mjs
 
-%:
-	$(MAKE) default DAY=$*
+watch: $(DEPS)
+	entr -dc node /_ <<< $(day).mjs
 
-get:
-	curl --silent -b session=$$(cat .session) 'https://adventofcode.com/2024/day/$(DAY)/input' > '$(DAY).txt'
+clear:
+	rm -f $(DEPS)
 
-set:
-	cat > '$(DAY).mjs' <<-EOF
+%.txt:
+	curl --silent -b session=$$(cat .session) 'https://adventofcode.com/2024/day/$*/input' > $@
+
+%.mjs:
+	cat > $*.mjs <<-EOF
 		import { readFile } from 'fs/promises'
 		const __dirname = import.meta.url.substring('file://'.length, import.meta.url.lastIndexOf('/'))
-		const data = String(await readFile(__dirname + '/$(DAY).txt')).trim()
+		const data = String(await readFile(__dirname + '/$*.txt')).trim()
 		console.log(data)
 	EOF
-
-open:
-	[ -f '$(DAY).txt' ] || $(MAKE) get DAY=$(DAY)
-	[ -f '$(DAY).mjs' ] || $(MAKE) set DAY=$(DAY)
-	$$EDITOR '$(DAY).mjs'
