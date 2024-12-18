@@ -14,34 +14,24 @@ console.log(
     .map(([r, c]) => x_mas([r, c], data))
     .filter(match => match).length)
 
-/**
- * @param {[number, number]} coords
- * @param {number[][]} map
- * @returns {number}
- */
-function xmas([r, c], map) {
-  let res = 0
-  res += [map[r]?.[c - 1], map[r]?.[c - 2], map[r]?.[c - 3]].join('') === 'MAS'
-  res += [map[r + 1]?.[c], map[r + 2]?.[c], map[r + 3]?.[c]].join('') === 'MAS'
-  res += [map[r - 1]?.[c], map[r - 2]?.[c], map[r - 3]?.[c]].join('') === 'MAS'
-  res += [map[r]?.[c + 1], map[r]?.[c + 2], map[r]?.[c + 3]].join('') === 'MAS'
-  res += [map[r - 1]?.[c + 1], map[r - 2]?.[c + 2], map[r - 3]?.[c + 3]].join('') === 'MAS'
-  res += [map[r + 1]?.[c + 1], map[r + 2]?.[c + 2], map[r + 3]?.[c + 3]].join('') === 'MAS'
-  res += [map[r + 1]?.[c - 1], map[r + 2]?.[c - 2], map[r + 3]?.[c - 3]].join('') === 'MAS'
-  res += [map[r - 1]?.[c - 1], map[r - 2]?.[c - 2], map[r - 3]?.[c - 3]].join('') === 'MAS'
-  return res
+function xmas([r, c]: [number, number], map: string[][]): number {
+  return [
+    [map[r]?.[c - 1], map[r]?.[c - 2], map[r]?.[c - 3]],
+    [map[r + 1]?.[c], map[r + 2]?.[c], map[r + 3]?.[c]],
+    [map[r - 1]?.[c], map[r - 2]?.[c], map[r - 3]?.[c]],
+    [map[r]?.[c + 1], map[r]?.[c + 2], map[r]?.[c + 3]],
+    [map[r - 1]?.[c + 1], map[r - 2]?.[c + 2], map[r - 3]?.[c + 3]],
+    [map[r + 1]?.[c + 1], map[r + 2]?.[c + 2], map[r + 3]?.[c + 3]],
+    [map[r + 1]?.[c - 1], map[r + 2]?.[c - 2], map[r + 3]?.[c - 3]],
+    [map[r - 1]?.[c - 1], map[r - 2]?.[c - 2], map[r - 3]?.[c - 3]],
+  ].filter(letters => letters.join('') === 'MAS').length
 }
 
-/**
- * @param {[number, number]} coords
- * @param {number[][]} map
- * @returns {boolean}
- */
-function x_mas([r, c], map) {
-  let res = 0
-  res += [map[r - 1]?.[c + 1], map[r + 1]?.[c - 1]].join('') === 'MS'
-  res += [map[r + 1]?.[c + 1], map[r - 1]?.[c - 1]].join('') === 'MS'
-  res += [map[r + 1]?.[c - 1], map[r - 1]?.[c + 1]].join('') === 'MS'
-  res += [map[r - 1]?.[c - 1], map[r + 1]?.[c + 1]].join('') === 'MS'
-  return res == 2
+function x_mas([r, c]: [number, number], map: string[][]): boolean {
+  return [
+    [map[r - 1]?.[c + 1], map[r + 1]?.[c - 1]],
+    [map[r + 1]?.[c + 1], map[r - 1]?.[c - 1]],
+    [map[r + 1]?.[c - 1], map[r - 1]?.[c + 1]],
+    [map[r - 1]?.[c - 1], map[r + 1]?.[c + 1]],
+  ].filter(letters => letters.join('') === 'MS').length === 2
 }
