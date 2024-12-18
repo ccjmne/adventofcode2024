@@ -2,16 +2,16 @@
 .ONESHELL:
 
 day  ?= $(shell date +%d)
-DEPS := $(day).txt $(day).mjs
+DEPS := $(day).txt $(day).ts
 
 run: $(DEPS)
-	node $(day).mjs
+	tsx $(day).ts
 
 watch: $(DEPS)
-	entr -dc node /_ <<< $(day).mjs
+	entr -dc tsx /_ <<< $(day).ts
 
 edit: $(DEPS)
-	$$EDITOR $(day).mjs
+	$$EDITOR $(day).ts
 
 clear:
 	rm -f $(DEPS)
@@ -19,8 +19,8 @@ clear:
 %.txt:
 	curl --silent -b session=$$(cat .session) 'https://adventofcode.com/2024/day/$*/input' > $@
 
-%.mjs:
-	cat > $*.mjs <<-EOF
+%.ts:
+	cat > $*.ts <<-EOF
 		import { readFile } from 'fs/promises'
 		const __dirname = import.meta.url.substring('file://'.length, import.meta.url.lastIndexOf('/'))
 		const data = String(await readFile(__dirname + '/$*.txt')).trim()
