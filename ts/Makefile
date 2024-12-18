@@ -2,7 +2,7 @@
 .ONESHELL:
 
 day  ?= $(shell date +%d)
-DEPS := $(day).txt $(day).ts
+DEPS := $(day).txt $(day).ts node_modules
 
 run: $(DEPS)
 	tsx $(day).ts
@@ -26,3 +26,6 @@ clear:
 		const data = String(await readFile(__dirname + '/$*.txt')).trim()
 		console.log(data)
 	EOF
+
+node_modules: package.json
+	pnpm install
