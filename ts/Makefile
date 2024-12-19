@@ -17,7 +17,7 @@ clear:
 	rm -f $(DEPS)
 
 %.txt:
-	curl --silent -b session=$$(cat .session) 'https://adventofcode.com/2024/day/$*/input' > $@
+	curl --silent -b session=$(AOC_SESSION) https://adventofcode.com/2024/day/$*/input > $@
 
 %.ts:
 	cat > $*.ts <<-EOF
