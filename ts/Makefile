@@ -8,7 +8,7 @@ run: $(DEPS)
 	tsx $(day).ts
 
 watch: $(DEPS)
-	entr -dc tsx /_ <<< $(day).ts
+	tr ' ' '\n' <<< '$^' | entr -c tsx $(day).ts
 
 edit: $(DEPS)
 	$$EDITOR $(day).ts
