@@ -2,16 +2,16 @@
 .ONESHELL:
 
 day  ?= $(shell date +%d)
-DEPS := $(day).txt $(day).ts node_modules
+DEPS := $(day).ts $(day).txt node_modules
 
 run: $(DEPS)
-	tsx $(day).ts
+	tsx $<
 
 watch: $(DEPS)
-	tr ' ' '\n' <<< '$^' | entr -c tsx $(day).ts
+	tr ' ' '\n' <<< '$^' | entr -c tsx $<
 
 edit: $(DEPS)
-	$$EDITOR $(day).ts
+	$$EDITOR $<
 
 clear:
 	rm -rf $(DEPS)
