@@ -1,6 +1,3 @@
-node_modules
-pnpm-lock.yaml
-
-# The Advent of Code is free to *use*, not free to copy.
-# See https://adventofcode.com/about
-*.txt
+*
+!Makefile
+!*.ts

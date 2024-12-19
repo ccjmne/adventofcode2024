@@ -2,7 +2,7 @@
 .ONESHELL:
 
 day  ?= $(shell date +%d)
-DEPS := $(day).ts $(day).txt node_modules
+DEPS := $(day).ts $(day).txt node_modules tsconfig.json
 
 run: $(DEPS)
 	tsx $<
@@ -30,3 +30,9 @@ clear:
 
 node_modules: package.json
 	pnpm install
+
+package.json:
+	cat > $@ <<< '{ "type": "module", "dependencies": { "@types/node": "latest" } }'
+
+tsconfig.json:
+	cat > $@ <<< '{ "compilerOptions": { "target": "esnext", "module": "esnext" } }'
