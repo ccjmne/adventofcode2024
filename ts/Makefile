@@ -14,7 +14,7 @@ edit: $(DEPS)
 	$$EDITOR $(day).ts
 
 clear:
-	rm -f $(DEPS)
+	rm -rf $(DEPS)
 
 %.txt:
 	curl --silent -b session=$(AOC_SESSION) https://adventofcode.com/2024/day/$*/input > $@
