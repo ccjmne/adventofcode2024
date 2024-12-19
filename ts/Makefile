@@ -21,6 +21,7 @@ clear:
 
 %.ts:
 	cat > $*.ts <<-EOF
+		// https://adventofcode.com/2024/day/$*
 		import { readFile } from 'fs/promises'
 		const __dirname = import.meta.url.substring('file://'.length, import.meta.url.lastIndexOf('/'))
 		const data = String(await readFile(__dirname + '/$*.txt')).trim()
