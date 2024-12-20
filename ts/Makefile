@@ -13,8 +13,8 @@ watch: $(DEPS)
 edit: $(DEPS)
 	$$EDITOR $<
 
-clear:
-	rm -rf $(DEPS)
+clean:
+	git clean -Xdf
 
 %.txt:
 	curl --silent -b session=$(AOC_SESSION) https://adventofcode.com/2024/day/$*/input > $@
