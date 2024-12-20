@@ -20,7 +20,7 @@ clean:
 	curl --silent -b session=$(AOC_SESSION) https://adventofcode.com/2024/day/$*/input > $@
 
 %.ts:
-	cat > $*.ts <<-EOF
+	cat > $@ <<-EOF
 		// https://adventofcode.com/2024/day/$*
 		import { readFile } from 'fs/promises'
 		const __dirname = import.meta.url.substring('file://'.length, import.meta.url.lastIndexOf('/'))
@@ -35,4 +35,4 @@ package.json:
 	cat > $@ <<< '{ "type": "module", "dependencies": { "@types/node": "latest" } }'
 
 tsconfig.json:
-	cat > $@ <<< '{ "compilerOptions": { "target": "esnext", "module": "esnext" } }'
+	cat > $@ <<< '{ "compilerOptions": { "target": "ESNext", "module": "ESNext" } }'
