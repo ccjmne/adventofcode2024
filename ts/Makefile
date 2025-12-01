@@ -1,8 +1,8 @@
 .PHONY: run watch edit clear
 .ONESHELL:
 
-year ?= $(shell date +%Y)
-day  ?= $(shell date +%-d)
+year ?= $(shell TZ=America/New_York date +%Y)
+day  ?= $(shell TZ=America/New_York date +%-d)
 DEPS := $(year)-$(day).ts $(year)-$(day).txt node_modules tsconfig.json
 
 run: $(DEPS)
