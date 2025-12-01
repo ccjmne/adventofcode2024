@@ -1,7 +1,7 @@
 .PHONY: run watch edit clear
 .ONESHELL:
 
-day  ?= $(shell date +%d)
+day  ?= $(shell date +%e)
 DEPS := $(day).ts $(day).txt node_modules tsconfig.json
 
 run: $(DEPS)
