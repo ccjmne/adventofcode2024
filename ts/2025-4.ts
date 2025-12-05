@@ -12,13 +12,13 @@ console.log(stabilise(0, () => (data = data.map((row, r) => row.map((col, c) => 
 
 function around(r: number, c: number, data: string[][]) {
   return [
-    [r - 1, c - 1], [r - 1, c - 0], [r - 1, c + 1],
-    [r - 0, c - 1],                 [r - 0, c + 1],
-    [r + 1, c - 1], [r + 1, c - 0], [r + 1, c + 1],
+    [r - 1, c - 1], [r - 1, c], [r - 1, c + 1],
+    [r    , c - 1],             [r    , c + 1],
+    [r + 1, c - 1], [r + 1, c], [r + 1, c + 1],
   ].reduce((count, [r, c]) => count + (data[r]?.[c] === '@'), 0)
 }
 
-function stabilise(cur: number, next: () => number): number {
-  const extracted = next()
-  return cur === extracted ? cur : stabilise(extracted, next)
+function stabilise(prev: number, next: () => number): number {
+  const cur = next()
+  return cur === prev ? cur : stabilise(cur, next)
 }
