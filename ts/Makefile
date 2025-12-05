@@ -1,4 +1,4 @@
-.PHONY: run watch edit clear
+.PHONY: run watch edit clean
 .ONESHELL:
 
 year ?= $(shell TZ=America/New_York date +%Y)
@@ -18,12 +18,12 @@ clean:
 	git clean -Xdf
 
 %.txt:
-	curl --silent -b session=$(AOC_SESSION) https://adventofcode.com/$$(echo $* | cut -d- -f1)/day/$$(echo $* | cut -d- -f2)/input > $@
+	curl --silent --cookie session=$(AOC_SESSION) https://adventofcode.com/$$(echo $* | cut -d- -f1)/day/$$(echo $* | cut -d- -f2)/input > $@
 
 %.ts:
 	cat > $@ <<-EOF
 		// https://adventofcode.com/$$(echo $* | cut -d- -f1)/day/$$(echo $* | cut -d- -f2)
-		import { readFile } from 'fs/promises'
+		import { readFile } from 'node:fs/promises'
 		const __dirname = import.meta.url.substring('file://'.length, import.meta.url.lastIndexOf('/'))
 		const data = String(await readFile(__dirname + '/$*.txt')).trim()
 		console.log(data)
